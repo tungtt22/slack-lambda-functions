@@ -3,7 +3,7 @@ This file receive incoming event and first process event from Application
 """
 
 import json
-import slackstash
+from AwsInstances import slackstash
 
 
 def process_event(event):
@@ -12,7 +12,7 @@ def process_event(event):
     """
     text = ""
     att_text = ""
-    response = {"response_type": "in_channel", "text": None, "attachments": []}
+    response = {"response_type": "in_channel", "mrkdwn": "true", "text": None, "attachments": []}
     body = event.get('body').replace("&", "\",\"").replace("=", "\":\"")
     data = json.loads("{\"" + body + "\"}")
 
@@ -27,14 +27,14 @@ def process_event(event):
     else:
         text = "User <@{0}> are not have authorization access to this function!".format(
             data["user_name"])
-
+    attach = ""
     cmd = slackstash.Command()
     if instances[0] == "turnon":
         att_text = cmd.call(command + "_turnon", instances[1])
     elif instances[0] == "turnoff":
         att_text = cmd.call(command + "_turnoff", instances[1])
     elif instances[0] == "status":
-        att_text = cmd.call(command + "_status", instances[1])
+        attach = cmd.call(command + "_status", instances[1])
     elif instances[0] == "tags":
         att_text = cmd.call(command + "_tags", instances[1])
     else:
@@ -45,6 +45,7 @@ def process_event(event):
 
     response["text"] = text
     response["attachments"].append(att_text)
+    response["attachments"].append(attach)
     return response
 
 
@@ -52,7 +53,6 @@ def lambda_handler(event, context):
     """
     Handler incoming request
     """
-    print(context)
     response = process_event(event)
     return {
         "isBase64Encoded": True,
