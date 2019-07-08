@@ -1,8 +1,17 @@
 # Slack integration with AWS Lambda Function
 
+Build an Slack bot can use for manage Instances or Service on AWS
+
 ## Contents
 
-- [Features](#feature)
+- [Slack integration with AWS Lambda Function](#slack-integration-with-aws-lambda-function)
+  - [Contents](#contents)
+  - [Features](#features)
+    - [1. Slash command](#1-slash-command)
+    - [2. Slack bot](#2-slack-bot)
+  - [Building Slack Bot](#building-slack-bot)
+  - [Configure AWS intergrate with Slack Bot](#configure-aws-intergrate-with-slack-bot)
+  - [Building Lambda Functions](#building-lambda-functions)
 
 ## Features
 ### 1. Slash command
@@ -40,3 +49,9 @@
      - [ ] Receive alert when abnormal action
 
   - [ ] **Get detail monitoring information**
+
+## Building Slack Bot
+
+## Configure AWS intergrate with Slack Bot
+
+## Building Lambda Functions
