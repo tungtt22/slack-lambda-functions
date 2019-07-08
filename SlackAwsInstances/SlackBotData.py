@@ -41,43 +41,16 @@ def check_authorization(data):
     return False
 
 class Switcher(object):
-  def indirect(self,command,instances):
-     method_name=command
-     method=getattr(self,method_name,lambda :'Invalid command!')
-     return method(instances)
+  def action(self,command,instance):
+    method_name = command
+    method=getattr(self, method_name, lambda :'Invalid command!')
+    return method(instance)
 
-def turn_on(self):
-    print ("turn on" + self)
-    switcher={
-      "sonar":"hello",
-      "nexus":"hello",
-      "jenkins":"hello",
-      "gitlab":"hello",
-      "jira":"hello",
-      "confluence":"hello"
-    }
-    return switcher.get(instance,"Instance not found!")
+  def turnon(self, instance):
+    print ("turn on " + instance)
 
-def turn_off(self):
-    print ("turn off" + self)
-    switcher={
-      "sonar":"hello",
-      "nexus":"hello",
-      "jenkins":"hello",
-      "gitlab":"hello",
-      "jira":"hello",
-      "confluence":"hello"
-    }
-    return switcher.get(instance,"Instance not found!")
+  def turnoff(self, instance):
+    print ("turn off " + instance)
 
-def status(self):
-  print ("status" + self)
-  switcher={
-    "sonar":"hello",
-    "nexus":"hello",
-    "jenkins":"hello",
-    "gitlab":"hello",
-    "jira":"hello",
-    "confluence":"hello"
-  }
-  return switcher.get(instance,"Instance not found!")
+  def status_aws(self, instance):
+    print ("status of " + instance)
