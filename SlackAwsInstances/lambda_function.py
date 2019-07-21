@@ -14,11 +14,13 @@ def process_event(event):
   data = json.loads("{\"" + body + "\"}")
 
   command = data["command"].strip("%2F")
-  instances = data["text"].split("+")
+
+  data["text"] = " ".join(data["text"].replace("+", " ").split())
+  instances = data["text"].split(" ")
 
   if (slackbot.check_authorization(data)):
     text = "User <@" + data[
-      "user_name"] + "> has run `" + command + " " + data["text"].replace("+", " ") + "` command"
+      "user_name"] + "> has run `" + command + " " + data["text"] + "` command"
   else:
     text = "User <@" + data[
       "user_name"] + "> are not have authorization access to this function!"
@@ -40,5 +42,3 @@ def process_event(event):
 def lambda_handler(event, context):
   response = process_event(event)
   return {"isBase64Encoded": True, 'statusCode': 200, 'body': json.dumps(response)}
-
-print (lambda_handler(json.loads(str(constants.BODY)), "aaaa"))
