@@ -68,6 +68,26 @@ def stop_all_instance(instances):
   else:
     return "Instance not found!"
 
-def check_instance_status(instance_id):
-  instance = ec2_instance.Instance(str(instance_id))
-  return instance
+def start_instance(instance):
+  instance_ids = []
+  text = ""
+  if instance["State"] == "stopped":
+    instance_ids.append(instance["InstanceId"])
+    ec2_client.start_instances(InstanceIds = instance_ids)
+    text = text + 'The instance `' + str(instance["TagName"]) + '` starting!\n'
+  else:
+    text = text + 'The instance `' + str(instance["TagName"]) + '` already started!\n'
+
+  return text
+
+def stop_instance(instance):
+  instance_ids = []
+  text = ""
+  if instance["State"] == "running":
+    instance_ids.append(instance["InstanceId"])
+    ec2_client.stop_instances(InstanceIds = instance_ids)
+    text = text + 'The instance `' + str(instance["TagName"]) + '` stopping!\n'
+  else:
+    text = text + 'The instance `' + str(instance["TagName"]) + '` already stopped!\n'
+
+  return text
