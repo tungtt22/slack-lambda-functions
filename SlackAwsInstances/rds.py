@@ -11,7 +11,8 @@ def get_list_instances():
 
   if len(db_instances) > 0:
     for item in db_instances:
-      instance = json.loads('{"InstanceId":" ", "TagName":" ", "PrivateIpAddresses":" ", "PublicIpAddress":" ", "InstanceType":" ", "State":" ", "Engine":" "}')
+      instance = json.loads('{"InstanceId":" ", "TagName":" ", "PrivateIpAddresses":" ", "PublicIpAddress":" ", "InstanceType":" ", "State":" ", "Engine":" ", "ServiceType":" "}')
+      instance["ServiceType"] = "rds"
       instance["InstanceId"] = item.get("DBInstanceIdentifier")
       instance["InstanceType"] = item.get("DBInstanceClass")
       instance["Engine"] = item.get("Engine")

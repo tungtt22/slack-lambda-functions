@@ -11,8 +11,9 @@ def get_list_instances():
   reservations = response.get('Reservations')
   if len(reservations) > 0:
     for reservation in reservations:
-      instance = json.loads('{"InstanceId": " ", "TagName":" ", "PrivateIpAddresses":" ", "PublicIpAddress":" ", "InstanceType":" ", "State":" "}')
+      instance = json.loads('{"InstanceId": " ", "TagName":" ", "PrivateIpAddresses":" ", "PublicIpAddress":" ", "InstanceType":" ", "State":" ", "ServiceType":" "}')
       instance_value = reservation.get("Instances")[0]
+      instance["ServiceType"] = "ec2"
       instance["InstanceId"] = instance_value.get("InstanceId")
       instance["PrivateIpAddresses"] = instance_value.get("PrivateIpAddress")
       instance["InstanceType"] = instance_value.get("InstanceType")
