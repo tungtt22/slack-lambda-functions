@@ -1,2 +1,3 @@
 **/__pycache__/**
-SlackAwsInstances/Constants.py
+SlackAwsInstances/constants.py
+SlackAwsInstances/run.py
