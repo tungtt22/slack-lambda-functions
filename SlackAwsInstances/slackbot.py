@@ -72,10 +72,25 @@ class Command(object):
     return value
 
   def aws_status(self, instance):
-    print ("Get status command")
+    text  = ""
     ec2_instances = ec2.get_list_instances()
     list_instance = ec2_instances
     instances = get_instance_id(instance, list_instance)
-    for instance in instances:
-      status = ec2.check_instance_status(instance)
-    return status
+    if (len(instances) > 0):
+      for instance in instances:
+        text = (
+                  "The instance `{0}` has current status as below:\n" +
+                  "  - *Service Type:* `{1}`\n" +
+                  "  - *Status:* `{2}`\n" +
+                  "  - *Public IP:* `{3}`\n" +
+                  "  - *Local IP:* `{4}`\n" +
+                  "  - *Instance Type:* `{5}`\n"
+               ).format(
+                 instance["TagName"],
+                 instance["ServiceType"].upper(),
+                 instance["State"],
+                 instance["PublicIpAddress"],
+                 instance["PrivateIpAddresses"],
+                 instance["InstanceType"]
+                )
+    return text
