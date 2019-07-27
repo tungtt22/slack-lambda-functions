@@ -35,9 +35,10 @@ def get_list_instances():
             state = instance_value.get("State")
             instance["State"] = state.get("Name")
 
-            for tag in instance_value.get("Tags"):
-                if tag.get("Key") == "Name":
-                    instance["TagName"] = tag.get("Value")
+            if instance_value.get("Tags"):
+                for tag in instance_value.get("Tags"):
+                    if tag.get("Key") == "Name":
+                        instance["TagName"] = tag.get("Value")
 
             instances.append(instance)
         return instances

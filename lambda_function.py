@@ -13,7 +13,13 @@ def process_event(event):
     text = ""
     att_text = ""
     response = {"response_type": "in_channel", "mrkdwn": "true", "text": None, "attachments": []}
-    body = event.get('body').replace("&", "\",\"").replace("=", "\":\"")
+
+    body = event.get('body')
+    if body:
+        body = event.get('body').replace("&", "\",\"").replace("=", "\":\"")
+    else:
+        return response
+
     data = json.loads("{\"" + body + "\"}")
 
     command = data["command"].strip("%2F")
@@ -41,7 +47,10 @@ def process_event(event):
         att_text = "Command `{0} {1}` wrong".format(
             command, data["text"].replace("+", " "))
 
-    att_text = {"text": att_text, "color": "#3AA3E3"}
+    att_text = {
+        "text": att_text,
+        "color": "#3AA3E3"
+    }
 
     response["text"] = text
     response["attachments"].append(att_text)
