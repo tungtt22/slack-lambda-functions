@@ -1,76 +1,113 @@
-import boto3
+"""
+Define all function using for AWS RDS
+"""
+
 import json
+import boto3
 import constants
 
-rds_client = boto3.client('rds', region_name = constants.REGION)
+RDS = boto3.client('rds', region_name=constants.REGION)
+
 
 def get_list_instances():
-  instances = []
-  response = rds_client.describe_db_instances()
-  db_instances = response.get("DBInstances")
+    """
+    Get all instance
+    """
+    instances = []
+    response = RDS.describe_db_instances()
+    db_instances = response.get("DBInstances")
 
-  if len(db_instances) > 0:
-    for item in db_instances:
-      instance = json.loads('{"InstanceId":" ", "TagName":" ", "Endpoint":" ", "EngineVersion":" ", "InstanceType":" ", "State":" ", "Engine":" ", "ServiceType":" "}')
-      instance["ServiceType"] = "rds"
-      instance["InstanceId"] = item.get("DBInstanceIdentifier")
-      instance["InstanceType"] = item.get("DBInstanceClass")
-      instance["Engine"] = item.get("Engine")
-      instance["TagName"] = item.get("DBInstanceIdentifier")
-      instance["State"] = item.get("DBInstanceStatus")
-      instance["Endpoint"] = item.get("Endpoint")["Address"]
-      instance["EngineVersion"] = item.get("EngineVersion")
-      instances.append(instance)
-    return instances
-  else:
+    if db_instances:
+        for item in db_instances:
+            instance = json.loads('{"InstanceId":" ", ' + '"TagName":" ", ' +
+                                  '"Endpoint":" ", ' +
+                                  '"EngineVersion":" ", ' +
+                                  '"InstanceType":" ", ' + '"State":" ", ' +
+                                  '"Engine":" ", ' + '"ServiceType":" "}')
+            instance["ServiceType"] = "rds"
+            instance["InstanceId"] = item.get("DBInstanceIdentifier")
+            instance["InstanceType"] = item.get("DBInstanceClass")
+            instance["Engine"] = item.get("Engine")
+            instance["TagName"] = item.get("DBInstanceIdentifier")
+            instance["State"] = item.get("DBInstanceStatus")
+            instance["Endpoint"] = item.get("Endpoint")["Address"]
+            instance["EngineVersion"] = item.get("EngineVersion")
+            instances.append(instance)
+        return instances
     return None
 
-def start_all_instances(instances):
-  text = ""
-  if len(instances) > 0:
-    for instance in instances:
-      instance = json.loads(instance)
-      if instance["State"] == "stopped":
-        rds_client.start_db_instance(DBInstanceIdentifier = str(instance["InstanceId"]))
-        text = text + 'The instance `' + str(instance["TagName"]) + '` starting!\n'
-      else:
-        text = text + 'The instance `' + str(instance["TagName"]) + '` already started!\n'
 
-    return text
-  else:
+def start_all_instances(instances):
+    """
+    Start all instances
+    """
+    text = ""
+    if instances:
+        for instance in instances:
+            instance = json.loads(instance)
+            if instance["State"] == "stopped":
+                RDS.start_db_instance(
+                    DBInstanceIdentifier=str(instance["InstanceId"]))
+                text = "{0}The instance `{1}` starting!\n".format(
+                    text, instance["TagName"])
+            else:
+                text = "{0}The instance `{1}` already started!\n".format(
+                    text, instance["TagName"])
+
+        return text
     return "Instance not found!"
+
 
 def stop_all_instances(instances):
-  text = ""
-  if len(instances) > 0:
-    for instance in instances:
-      instance = json.loads(instance)
-      if instance["State"] == "available":
-        rds_client.stop_db_instance(DBInstanceIdentifier = str(instance["InstanceId"]))
-        text = text + 'The instance `' + str(instance["TagName"]) + '` stopping!\n'
-      else:
-        text = text + 'The instance `' + str(instance["TagName"]) + '` already stopped!\n'
-    
-    return text
-  else:
+    """
+    Stop all instances
+    """
+    text = ""
+    if instances:
+        for instance in instances:
+            instance = json.loads(instance)
+            if instance["State"] == "available":
+                RDS.stop_db_instance(
+                    DBInstanceIdentifier=str(instance["InstanceId"]))
+                text = "{0}The instance `{1}` stopping!\n".format(
+                    text, str(instance["TagName"]))
+            else:
+                text = "{0}The instance `{1}` already stopped!\n".format(
+                    text, str(instance["TagName"]))
+
+        return text
     return "Instance not found!"
 
-def start_instance(instance):
-  text = ""
-  if instance["State"] == "stopped":
-    rds_client.start_db_instance(DBInstanceIdentifier = str(instance["InstanceId"]))
-    text = text + 'The instance `' + str(instance["TagName"]) + '` starting!\n'
-  else:
-    text = text + 'The instance `' + str(instance["TagName"]) + '` already started!\n'
 
-  return text
+def start_instance(instance):
+    """
+    Start an instance
+    """
+    text = ""
+    if instance["State"] == "stopped":
+        RDS.start_db_instance(
+            DBInstanceIdentifier=str(instance["InstanceId"]))
+        text = "{0}The instance `{1}` starting!\n".format(
+            text, str(instance["TagName"]))
+    else:
+        text = "{0}The instance `{1}` already started!\n".format(
+            text, str(instance["TagName"]))
+
+    return text
+
 
 def stop_instance(instance):
-  text = ""
-  if instance["State"] == "available":
-    rds_client.stop_db_instance(DBInstanceIdentifier = str(instance["InstanceId"]))
-    text = text + 'The instance `' + str(instance["TagName"]) + '` stopping!\n'
-  else:
-    text = text + 'The instance `' + str(instance["TagName"]) + '` already stopped!\n'
-    
-  return text
+    """
+    Stop an instance
+    """
+    text = ""
+    if instance["State"] == "available":
+        RDS.stop_db_instance(
+            DBInstanceIdentifier=str(instance["InstanceId"]))
+        text = "{0}The instance `{1}` stopping!\n".format(
+            text, str(instance["TagName"]))
+    else:
+        text = "{0}The instance `{1}` already stopped!\n".format(
+            text, str(instance["TagName"]))
+
+    return text
