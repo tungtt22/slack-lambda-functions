@@ -2,9 +2,9 @@
 Define all command when call from Slack
 """
 
-import ec2
-import rds
-import constants
+from AwsInstances import ec2
+from AwsInstances import rds
+from AwsInstances import constants
 
 
 def find_channel(channel_id, channel_ids):
@@ -63,6 +63,95 @@ def get_instance_id(instance, instance_list, regex):
     return instances
 
 
+def print_ec2_instance_info(_instance):
+    """
+    Format attachment for EC2 instance
+    """
+    attachment = {"text": "", "fields": [], "color": "#F35A00"}
+    attachment["text"] = "The instance `" + _instance[
+        "TagName"] + "` has current status as below:"
+    field_service_type = {
+        "title": "Service Type:",
+        "value": _instance["ServiceType"].upper(),
+        "short": "true"
+    }
+    field_status = {
+        "title": "Status:",
+        "value": _instance["State"],
+        "short": "true"
+    }
+    field_instance_type = {
+        "title": "Instance Type:",
+        "value": _instance["InstanceType"],
+        "short": "true"
+    }
+    field_local_ip = {
+        "title": "Local IP:",
+        "value": _instance["PrivateIpAddresses"],
+        "short": "true"
+    }
+    attachment["fields"].append(field_service_type)
+    attachment["fields"].append(field_instance_type)
+    attachment["fields"].append(field_status)
+    attachment["fields"].append(field_local_ip)
+    if _instance["PublicIpAddress"] is not None:
+        field_public_ip = {
+            "title": "Public IP:",
+            "value": _instance["PublicIpAddress"],
+            "short": "true"
+        }
+        attachment["fields"].append(field_public_ip)
+
+    return attachment
+
+
+def print_rds_instance_info(_instance):
+    """
+    Format attachment for RDS instance
+    """
+    attachment = {"text": "", "fields": [], "color": "#F35A00"}
+    attachment["text"] = "The instance `" + _instance[
+        "TagName"] + "` has current status as below:"
+    field_service_type = {
+        "title": "Service Type:",
+        "value": _instance["ServiceType"].upper(),
+        "short": "true"
+    }
+    field_status = {
+        "title": "Status:",
+        "value": _instance["State"],
+        "short": "true"
+    }
+    field_instance_type = {
+        "title": "Instance Type:",
+        "value": _instance["InstanceType"],
+        "short": "true"
+    }
+    field_endpoint = {
+        "title": "Endpoint:",
+        "value": _instance["Endpoint"],
+        "short": "true"
+    }
+    field_engine = {
+        "title": "Engine:",
+        "value": _instance["Engine"],
+        "short": "true"
+    }
+    field_engine_version = {
+        "title": "Engine Version:",
+        "value": _instance["EngineVersion"],
+        "short": "true"
+    }
+    attachment["fields"].append(field_service_type)
+    attachment["fields"].append(field_instance_type)
+    attachment["fields"].append(field_status)
+    attachment["fields"].append(field_endpoint)
+    attachment["fields"].append(field_engine)
+    attachment["fields"].append(field_engine_version)
+
+    return attachment
+
+
 class Command(object):
     """
     All command list here
@@ -76,7 +165,8 @@ class Command(object):
         method = getattr(self, method_name, lambda: 'Invalid command!')
         return method(instance)
 
-    def aws_turnon(self, _instance):
+    @classmethod
+    def aws_turnon(cls, _instance):
         """
         Turn on command
         """
@@ -101,7 +191,8 @@ class Command(object):
                     value = rds.start_all_instances(instances)
         return value
 
-    def aws_turnoff(self, _instance):
+    @classmethod
+    def aws_turnoff(cls, _instance):
         """
         Turnoff command
         """
@@ -127,11 +218,12 @@ class Command(object):
 
         return value
 
-    def aws_status(self, _instance):
+    @classmethod
+    def aws_status(cls, _instance):
         """
         aws status command using for get status of instances
         """
-        text = ""
+        attachment = {}
         ec2_instances = ec2.get_list_instances()
         rds_instances = rds.get_list_instances()
         list_instance = ec2_instances + rds_instances
@@ -139,35 +231,16 @@ class Command(object):
         if instances:
             for _instance in instances:
                 if _instance["ServiceType"] == "ec2":
-                    text = (
-                        "The instance `{0}` has current status as below:\n" +
-                        "  - *Service Type:* `{1}`\n" +
-                        "  - *Status:* `{2}`\n" + "  - *Public IP:* `{3}`\n" +
-                        "  - *Local IP:* `{4}`\n" +
-                        "  - *Instance Type:* `{5}`\n").format(
-                            _instance["TagName"],
-                            _instance["ServiceType"].upper(),
-                            _instance["State"], _instance["PublicIpAddress"],
-                            _instance["PrivateIpAddresses"],
-                            _instance["InstanceType"])
+                    attachment = print_ec2_instance_info(_instance)
                 elif _instance["ServiceType"] == "rds":
-                    text = (
-                        "The instance `{0}` has current status as below:\n" +
-                        "  - *Service Type:* `{1}`\n" +
-                        "  - *Status:* `{2}`\n" + "  - *Endpoint:* `{3}`\n" +
-                        "  - *Instance Type:* `{4}`\n" +
-                        "  - *Engine:* `{5}`\n" +
-                        "  - *Engine Version:* `{6}`\n").format(
-                            _instance["TagName"],
-                            _instance["ServiceType"].upper(),
-                            _instance["State"], _instance["Endpoint"],
-                            _instance["InstanceType"], _instance["Engine"],
-                            _instance["EngineVersion"])
+                    attachment = print_rds_instance_info(_instance)
         else:
-            return "Instance not found!"
-        return text
+            attachment["text"] = "Instance not found!"
+            return attachment
+        return attachment
 
-    def aws_tags(self, _instance):
+    @classmethod
+    def aws_tags(cls, _instance):
         """
         aws tag command using for get all instance tags
         """
@@ -183,15 +256,11 @@ class Command(object):
         if instances:
             for _instance in instances:
                 if _instance["ServiceType"] == "ec2":
-                    text = "{0}  - InstanceID `{1}`, Tags `{2}`, Service `ec2`\n".format(
-                        text,
-                        _instance["InstanceId"],
-                        _instance["TagName"])
+                    text = "{0}  - *Tags:* `{1}`     *Service:* `ec2`\n".format(
+                        text, _instance["TagName"])
                 elif _instance["ServiceType"] == "rds":
-                    text = "{0}  - InstanceID `{1}`, Tags `{2}`, Service `rds`\n".format(
-                        text,
-                        _instance["InstanceId"],
-                        _instance["TagName"])
+                    text = "{0}  - *Tags:* `{1}`     *Service:* `rds`\n".format(
+                        text, _instance["TagName"])
         else:
             return "Instance not found!"
-        return "The tags of instances as below:\n" + text
+        return text
