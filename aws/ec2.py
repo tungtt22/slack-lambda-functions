@@ -4,7 +4,7 @@ Define all function using for AWS EC2
 
 import json
 import boto3
-from AwsInstances import constants
+from aws import constants
 
 INSTANCES = boto3.resource('ec2', region_name=constants.REGION)
 CLIENT = boto3.client('ec2', region_name=constants.REGION)

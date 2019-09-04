@@ -23,6 +23,7 @@ Build an Slack bot can use for manage Instances or Service on AWS
      - [x] Turn-on
      - [x] Turn-off
      - [x] Get status
+     - [x] Get all tag of RDS and EC2 instances
      - [ ] Set schedule for turn-on and turn-off instance
      - [ ] Approval for turn-on and turn-off instance
 
