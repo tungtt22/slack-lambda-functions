@@ -1,3 +1,2 @@
 **/__pycache__/**
-AwsInstances/constants.py
-run.py
+aws/constants.py

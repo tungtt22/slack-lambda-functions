@@ -4,7 +4,7 @@ Define all function using for AWS RDS
 
 import json
 import boto3
-from AwsInstances import constants
+from aws import constants
 
 RDS = boto3.client('rds', region_name=constants.REGION)
 

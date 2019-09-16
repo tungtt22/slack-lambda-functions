@@ -2,9 +2,11 @@
 Define all command when call from Slack
 """
 
-from AwsInstances import ec2
-from AwsInstances import rds
-from AwsInstances import constants
+from datetime import datetime
+from aws import ec2
+from aws import rds
+from aws import cw_events
+from aws import constants
 
 
 def find_channel(channel_id, channel_ids):
@@ -152,18 +154,30 @@ def print_rds_instance_info(_instance):
     return attachment
 
 
+def convert_datetime_to_cron(date_time):
+    """
+    Convert date time to cron expression
+    """
+    date_time = datetime.strptime(date_time, '%d/%m/%Y %H:%M')
+
+    cron_express = "cron({0} {1} {2} {3} ? {4})".format(
+        date_time.minute, date_time.hour, date_time.day, date_time.month,
+        date_time.year)
+    return cron_express
+
+
 class Command(object):
     """
     All command list here
     """
 
-    def call(self, command, instance):
+    def call(self, command, option):
         """
         Call functions
         """
         method_name = command
         method = getattr(self, method_name, lambda: 'Invalid command!')
-        return method(instance)
+        return method(option)
 
     @classmethod
     def aws_turnon(cls, _instance):
@@ -203,7 +217,7 @@ class Command(object):
         number_instance = len(instances)
         if number_instance == 0:
             return "Instance not found!"
-        elif number_instance == 1:
+        if number_instance == 1:
             _instance = instances[0]
             if _instance["ServiceType"] == "ec2":
                 value = ec2.stop_instance(_instance)
@@ -264,3 +278,19 @@ class Command(object):
         else:
             return "Instance not found!"
         return text
+
+    @classmethod
+    def aws_schedule(cls, schedule):
+        """
+        aws schedule command using for set schedule turn-on and turn-off instance
+        """
+        timestamp = datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S')
+        if schedule["turnon"] is not None:
+            cron_express = convert_datetime_to_cron(schedule["turnon"])
+            cw_events.create_event(schedule["requester"] + "_turnon_" + timestamp,
+                                   cron_express, constants.LAMBDA_TURNON)
+        if schedule["turnoff"] is not None:
+            cron_express = convert_datetime_to_cron(schedule["turnoff"])
+            cw_events.create_event(schedule["requester"] + "_turnoff_" + timestamp,
+                                   cron_express, constants.LAMBDA_TURNOFF)
+        return schedule
